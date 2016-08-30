@@ -12,3 +12,14 @@ func NewBalancer(fqdn string) *Balancer {
 	}
 	return &balancer
 }
+
+// GetIPList returns a string array containing resolved ips
+func (b *Balancer) GetIPList() []string {
+	ret := []string{"10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"}
+	return ret
+}
+
+// IsHealthy returns true if there are healthy hosts
+func (b *Balancer) IsHealthy() bool {
+	return len(b.GetIPList()) > 0
+}

@@ -39,10 +39,10 @@ var _ = Describe("Balancer", func() {
 	Describe("Calling for a list of IPs", func() {
 		Context("With ips "+ipListStr, func() {
 			It("should be of length 4", func() {
-				Expect(balancer.GetIpList()).To(HaveLen(len(ipList)))
+				Expect(balancer.GetIPList()).To(HaveLen(len(ipList)))
 			})
 			It("should equal "+ipListStr, func() {
-				Expect(balancer.GetIpList()).To(ConsistOf(ipList))
+				Expect(balancer.GetIPList()).To(ConsistOf(ipList))
 			})
 		})
 	})
