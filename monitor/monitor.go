@@ -28,8 +28,5 @@ func NewMonitor(configPath string, dbusConn *DbusConnection, interval int, fqdn 
 }
 
 // Loop runs the monitor and resolves the service at a given interval
-func (m *Monitor) Loop(interval int) <-chan bool {
-	quit := make(chan bool)
-
-	return quit
+func (m *Monitor) Loop(interval int, signal <-chan int) {
 }
