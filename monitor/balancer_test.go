@@ -3,8 +3,6 @@ package monitor_test
 import (
 	. "github.com/ccpgames/aws-nginx-ha-manager/monitor"
 
-	"strings"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -14,15 +12,24 @@ type ec2Mock struct {
 
 var _ = Describe("Balancer", func() {
 	var (
-		balancer  *Balancer
-		ipList    []string
-		ipListStr string
+		balancer     *Balancer
+		deadBalancer *Balancer
+		resolver     MockResolver
+		liveHost     string
+		deadHost     string
+		ipList       []string
+		resolveMap   map[string][]string
 	)
 
 	BeforeEach(func() {
-		balancer = NewBalancer("internal.balancer.test")
+		liveHost = "internal.balancer.test"
 		ipList = []string{"10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"}
-		ipListStr = strings.Join(ipList, ", ")
+		resolveMap = make(map[string][]string)
+		resolveMap[liveHost] = ipList
+		resolveMap[deadHost] = make([]string, 0)
+		resolver = MockResolver{resolveMap}
+		balancer = NewBalancer(resolver, liveHost)
+		deadBalancer = NewBalancer(resolver, deadHost)
 	})
 
 	AfterEach(func() {
@@ -33,17 +40,18 @@ var _ = Describe("Balancer", func() {
 			It("should return true", func() {
 				Expect(balancer.IsHealthy()).To(BeTrue())
 			})
-		})
-	})
-
-	Describe("Calling for a list of IPs", func() {
-		Context("With ips "+ipListStr, func() {
-			It("should be of length 4", func() {
-				Expect(balancer.GetIPList()).To(HaveLen(len(ipList)))
-			})
-			It("should equal "+ipListStr, func() {
+			It("should equal expected list", func() {
 				Expect(balancer.GetIPList()).To(ConsistOf(ipList))
 			})
 		})
+		Context("With an unhealthy balancer", func() {
+			It("should return unhealthy", func() {
+				Expect(deadBalancer.IsHealthy()).To(BeFalse())
+			})
+			It("should return emtpy list", func() {
+				Expect(deadBalancer.GetIPList()).To(ConsistOf([]string{}))
+			})
+		})
 	})
+
 })
