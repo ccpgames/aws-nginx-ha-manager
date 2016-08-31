@@ -8,8 +8,7 @@ import (
 )
 
 var templateTxt = `upstream {{.UpstreamName}} {
-{{$len := lendec .IPList 1}}
-{{range $i, $e := .IPList}}	{{$e}}{{if lt $i $len}},{{end}}
+{{$len := lendec .IPList 1}}{{range $i, $e := .IPList}}    {{$e}}{{if lt $i $len}},{{end}}
 {{end}}}`
 
 // ConfigWriter encapsulates writing an upstream config to a path

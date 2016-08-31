@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 
 	. "github.com/ccpgames/aws-nginx-ha-manager/monitor"
 
@@ -18,7 +17,6 @@ var _ = Describe("ConfigWriter", func() {
 		configWriter *ConfigWriter
 		fileFH       *os.File
 		ipList       []string
-		ipListStr    string
 		upstreamName string
 		err          error
 		expected     string
@@ -30,13 +28,13 @@ var _ = Describe("ConfigWriter", func() {
 			fmt.Errorf("Error opening temp file", err)
 		}
 		configWriter = NewConfigWriter(fileFH.Name(), upstreamName)
-		log.Printf("using file %s", fileFH.Name())
 		ipList = []string{"10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"}
-		ipListStr = strings.Join(ipList, ", ")
-		upstreamName = "aws_upstream"
-		expected = fmt.Sprintf(`upstream %s {
-	%s
-}`, upstreamName, strings.Join(ipList, ",\n\t"))
+		expected = `upstream aws_upstream {
+    10.0.0.1,
+    10.0.0.2,
+    10.0.0.3,
+    10.0.0.4
+}`
 	})
 
 	AfterEach(func() {
