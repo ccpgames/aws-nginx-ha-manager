@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"net"
 	"strings"
 	"syscall"
 
@@ -56,9 +55,6 @@ var monitorCmd = &cobra.Command{
 				log.Fatalf("Error getting unitlist: %s", err)
 			}
 			log.Fatalf("Could not get properties of nginx unit; is it running?: %s (available units listed below)\n%s", err, strings.Join(unitNames, "\n"))
-		}
-		if _, err := net.LookupIP(elbName); err != nil {
-			log.Fatalf("Could not perform initial lookup of %s: %s", elbName, err)
 		}
 		resolver := monitor.NewAWSResolver()
 		mon := monitor.NewMonitor(configFile, dbusConn, interval, elbName, port, upstreamName, resolver)
