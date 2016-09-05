@@ -4,6 +4,6 @@ This utility is designed to run beside an nginx HA proxy and monitor an AWS ELB 
 
 The purpose of this utility is to solve some issues with ELBs, such as support for long-polling, proper websocket support and other matters.
 
-The utility simply resolves the ELBs dns and ensures the list of ips in the upstream list matches them exactly.
+The utility queries AWS APIs and ensures the list of ips in the upstream list matches them exactly.
 
 Note: It depends on systemd, i.e. CoreOS, Redhat et al, or newer debian based systems
