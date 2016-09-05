@@ -33,7 +33,7 @@ var configFile string
 
 // monitorCmd represents the monitor command
 var monitorCmd = &cobra.Command{
-	Use:   "monitor",
+	Use:   "monitor <elb-name> [options]",
 	Short: "Start monitoring an LB",
 	Long:  `nginx-aws-monitor monitors a Load Balancer and updates an nginx upstream configuration file to match the results`,
 	Run: func(cmd *cobra.Command, args []string) {
