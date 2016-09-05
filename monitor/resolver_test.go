@@ -35,13 +35,4 @@ var _ = Describe("Monitor/Resolver", func() {
 		Expect(err).NotTo(BeNil())
 		Expect(actual).To(BeEmpty())
 	})
-
-	It("Should freak out", func() {
-		log.Error("Don't to this at home kids")
-		actual, err := resolver.Resolve("nginx-ha-testing")
-		if err != nil {
-			log.Errorln(err)
-		}
-		log.Println(actual)
-	})
 })
