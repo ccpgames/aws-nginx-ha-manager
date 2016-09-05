@@ -60,9 +60,10 @@ var monitorCmd = &cobra.Command{
 		if _, err := net.LookupIP(elbName); err != nil {
 			log.Fatalf("Could not perform initial lookup of %s: %s", elbName, err)
 		}
-		monitor := monitor.NewMonitor(configFile, dbusConn, interval, elbName, port, upstreamName)
+		resolver := monitor.NewAWSResolver()
+		mon := monitor.NewMonitor(configFile, dbusConn, interval, elbName, port, upstreamName, resolver)
 		ch := make(chan syscall.Signal)
-		monitor.Loop(ch)
+		mon.Loop(ch)
 		run := true
 		for run {
 			select {
