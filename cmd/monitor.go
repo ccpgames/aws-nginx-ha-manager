@@ -49,13 +49,13 @@ var monitorCmd = &cobra.Command{
 		}
 		if _, err = dbusConn.GetUnitProperties("nginx.service"); err != nil {
 
-			units, err := dbusConn.ListUnits()
+			units, listErr := dbusConn.ListUnits()
+			if listErr != nil {
+				log.Fatalf("Error getting unitlist: %s", listErr)
+			}
 			unitNames := make([]string, len(units))
 			for i, _ := range units {
 				unitNames[i] = units[i].Name
-			}
-			if err != nil {
-				log.Fatalf("Error getting unitlist: %s", err)
 			}
 			log.Fatalf("Could not get properties of nginx unit; is it running?: %s (available units listed below)\n%s", err, strings.Join(unitNames, "\n"))
 		}
