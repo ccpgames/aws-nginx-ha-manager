@@ -26,15 +26,22 @@ type Monitor struct {
 }
 
 // NewMonitor return a new instance of Monitor with the supplied parameters
-func NewMonitor(configPath string, dbusConn DbusConnection, interval int, fqdn string, port int, upstreamName string) *Monitor {
-	resolver := NewAWSResolver()
+func NewMonitor(
+	configPath string,
+	dbusConn DbusConnection,
+	interval int,
+	elbName string,
+	port int,
+	upstreamName string,
+	resolver Resolver,
+) *Monitor {
 	monitor := Monitor{
 		ConfigPath:   configPath,
 		dbusConn:     dbusConn,
 		interval:     interval,
-		balancer:     NewBalancer(resolver, fqdn),
+		balancer:     NewBalancer(resolver, elbName),
 		configWriter: NewConfigWriter(configPath, upstreamName, port),
-		host:         fqdn,
+		host:         elbName,
 		port:         port,
 		upstreamName: upstreamName,
 	}

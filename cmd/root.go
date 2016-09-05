@@ -28,7 +28,7 @@ var cfgFile string
 var RootCmd = &cobra.Command{
 	Use:   "aws-nginx-ha-manager",
 	Short: "A utility to manage nginx upstream servers",
-	Long:  `Monitors a service fqdn and updates upstream servers in concordance with resolved ips`,
+	Long:  `Monitors a service elbName and updates upstream servers in concordance with resolved ips`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },

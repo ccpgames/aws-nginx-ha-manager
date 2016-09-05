@@ -27,6 +27,7 @@ var _ = Describe("ConfigWriter", func() {
 		if err != nil {
 			fmt.Errorf("Error opening temp file", err)
 		}
+		upstreamName = "aws_upstream"
 		configWriter = NewConfigWriter(fileFH.Name(), upstreamName, 10080)
 		ipList = []string{"10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"}
 		expected = `upstream aws_upstream {

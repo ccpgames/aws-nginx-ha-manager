@@ -2,14 +2,14 @@ package monitor
 
 // Balancer encapsulates an ELB and contains functions to query it's state
 type Balancer struct {
-	fqdn     string
+	elbName     string
 	resolver Resolver
 }
 
 // NewBalancer returns a new balancer instance
-func NewBalancer(resolver Resolver, fqdn string) *Balancer {
+func NewBalancer(resolver Resolver, elbName string) *Balancer {
 	balancer := Balancer{
-		fqdn:     fqdn,
+		elbName:     elbName,
 		resolver: resolver,
 	}
 	return &balancer
@@ -17,7 +17,7 @@ func NewBalancer(resolver Resolver, fqdn string) *Balancer {
 
 // GetIPList returns a string array containing resolved ips
 func (b *Balancer) GetIPList() ([]string, error) {
-	list, err := b.resolver.Resolve(b.fqdn)
+	list, err := b.resolver.Resolve(b.elbName)
 	if err != nil {
 		return nil, err
 	}

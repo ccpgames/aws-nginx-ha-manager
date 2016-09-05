@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var fqdn string
+var elbName string
 var upstreamName string
 var port int
 var interval int
@@ -41,7 +41,7 @@ var monitorCmd = &cobra.Command{
 		// TODO: Work your own magic here
 		var err error
 		var dbusConn *dbus.Conn
-		fqdn = args[0]
+		elbName = args[0]
 		if dbusConn, err = dbus.New(); err != nil {
 			log.Fatalf("Could not open dbus connection (this program requires linux with nginx runnin on systemd): %s", err)
 		}
@@ -57,10 +57,10 @@ var monitorCmd = &cobra.Command{
 			}
 			log.Fatalf("Could not get properties of nginx unit; is it running?: %s (available units listed below)\n%s", err, strings.Join(unitNames, "\n"))
 		}
-		if _, err := net.LookupIP(fqdn); err != nil {
-			log.Fatalf("Could not perform initial lookup of %s: %s", fqdn, err)
+		if _, err := net.LookupIP(elbName); err != nil {
+			log.Fatalf("Could not perform initial lookup of %s: %s", elbName, err)
 		}
-		monitor := monitor.NewMonitor(configFile, dbusConn, interval, fqdn, upstreamName, port)
+		monitor := monitor.NewMonitor(configFile, dbusConn, interval, elbName, port, upstreamName)
 		ch := make(chan syscall.Signal)
 		monitor.Loop(ch)
 		run := true
@@ -89,7 +89,7 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// monitorCmd.PersistentFlags().String("foo", "", "A help for foo")
-	monitorCmd.PersistentFlags().IntVar(&interval, "interval", 5, "the interval in seconds to poll the fqdn for new upstream hosts")
+	monitorCmd.PersistentFlags().IntVar(&interval, "interval", 5, "the interval in seconds to poll the elbName for new upstream hosts")
 	monitorCmd.PersistentFlags().StringVar(&configFile, "upstream-file", "/etc/nginx/conf.d/aws_upstream.conf", "The upstream config file to write to")
 	monitorCmd.PersistentFlags().IntVar(&port, "port", 10080, "The port upstream servers are called on")
 	monitorCmd.PersistentFlags().StringVar(&upstreamName, "upstream-name", "upstream", "the name of the upstream")

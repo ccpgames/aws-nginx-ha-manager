@@ -29,15 +29,18 @@ var _ = Describe("Monitor/Monitor", func() {
 		configPath     string
 		dbusConnection MockDbusConnection
 		interval       int
-		fqdn           string
+		elbName        string
 	)
 
 	BeforeEach(func() {
 		fileFH, err = ioutil.TempFile("", "config_writer_tests")
 		configPath = fileFH.Name()
-		fqdn = "google-public-dns-a.google.com"
+		elbName = "google-dns"
 		interval = 500
-		monitor = NewMonitor(configPath, dbusConnection, interval, fqdn, 10080, "google-dns")
+		resolveMap := make(map[string][]string)
+		resolveMap["google-dns"] = []string{"8.8.8.8", "8.8.4.4"}
+		resolver := NewMockresolver(resolveMap)
+		monitor = NewMonitor(configPath, dbusConnection, interval, elbName, 10080, "google-dns", resolver)
 		reloadReceived = false
 	})
 

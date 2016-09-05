@@ -42,7 +42,7 @@ func NewConfigWriter(path string, upstreamName string, port int) *ConfigWriter {
 	cw := ConfigWriter{
 		configPath:   path,
 		template:     tpl,
-		UpstreamName: "aws_upstream",
+		UpstreamName: upstreamName,
 		IPList:       []string{},
 		Port:         port,
 	}
