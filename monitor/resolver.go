@@ -43,7 +43,6 @@ func (r *AWSResolver) Resolve(host string) ([]string, error) {
 	if err != nil {
 		log.Errorf("Error resolving %s: %s", host, err)
 	} else {
-		log.Infof("Resolved %s to %s", host, ret)
 		instanceIds := make([]*string, 0)
 		for _, state := range ret.InstanceStates {
 			if *state.State == "InService" {

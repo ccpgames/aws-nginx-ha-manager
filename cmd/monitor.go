@@ -40,6 +40,9 @@ var monitorCmd = &cobra.Command{
 		// TODO: Work your own magic here
 		var err error
 		var dbusConn *dbus.Conn
+		if len(args) < 1 {
+			log.Fatalln("Please specify elb-name")
+		}
 		elbName = args[0]
 		if dbusConn, err = dbus.New(); err != nil {
 			log.Fatalf("Could not open dbus connection (this program requires linux with nginx runnin on systemd): %s", err)
