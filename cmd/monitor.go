@@ -70,11 +70,9 @@ var monitorCmd = &cobra.Command{
 				switch sig {
 				case syscall.SIGHUP:
 					log.Info("Reloaded on signal")
-					break
 				case syscall.SIGABRT:
 					log.Info("Exiting on signal")
 					run = false
-					break
 				}
 			}
 		}
