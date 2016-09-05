@@ -27,13 +27,13 @@ var _ = Describe("ConfigWriter", func() {
 		if err != nil {
 			fmt.Errorf("Error opening temp file", err)
 		}
-		configWriter = NewConfigWriter(fileFH.Name(), upstreamName)
+		configWriter = NewConfigWriter(fileFH.Name(), upstreamName, 10080)
 		ipList = []string{"10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"}
 		expected = `upstream aws_upstream {
-    10.0.0.1,
-    10.0.0.2,
-    10.0.0.3,
-    10.0.0.4
+    server 10.0.0.1:10080;
+    server 10.0.0.2:10080;
+    server 10.0.0.3:10080;
+    server 10.0.0.4:10080;
 }`
 	})
 

@@ -21,18 +21,22 @@ type Monitor struct {
 	balancer     *Balancer
 	stop         bool
 	host         string
+	port         int
+	upstreamName string
 }
 
 // NewMonitor return a new instance of Monitor with the supplied parameters
-func NewMonitor(configPath string, dbusConn DbusConnection, interval int, fqdn string) *Monitor {
+func NewMonitor(configPath string, dbusConn DbusConnection, interval int, fqdn string, port int, upstreamName string) *Monitor {
 	resolver := NewAWSResolver()
 	monitor := Monitor{
 		ConfigPath:   configPath,
 		dbusConn:     dbusConn,
 		interval:     interval,
 		balancer:     NewBalancer(resolver, fqdn),
-		configWriter: NewConfigWriter(configPath, "aws_upstream"),
+		configWriter: NewConfigWriter(configPath, upstreamName, port),
 		host:         fqdn,
+		port:         port,
+		upstreamName: upstreamName,
 	}
 
 	return &monitor
@@ -58,7 +62,7 @@ func (m *Monitor) Loop(ch chan syscall.Signal) {
 		if !testEq(ipList, list) {
 			ipList = list
 			m.configWriter.WriteConfig(ipList)
-			retVal, err := m.dbusConn.ReloadOrRestartUnit("nginx", "fail", nil)
+			retVal, err := m.dbusConn.ReloadOrRestartUnit("nginx.service", "fail", nil)
 			if err != nil {
 				log.Errorf("Error restarting or reloading the nginx unit: retval: %d: %s", retVal, err)
 			}
@@ -69,14 +73,13 @@ func (m *Monitor) Loop(ch chan syscall.Signal) {
 		case s := <-ch:
 			switch s {
 			case syscall.SIGHUP:
-				retVal, err := m.dbusConn.ReloadOrRestartUnit("nginx", "fail", nil)
+				retVal, err := m.dbusConn.ReloadOrRestartUnit("nginx.service", "fail", nil)
 				if err != nil {
 					log.Errorf("Error restarting or reloading the nginx unit: retval: %d: %s", retVal, err)
 				}
 				log.Info("Reloaded nginx by signal")
 				ch <- syscall.SIGHUP
 				break
-			case syscall.SIGKILL:
 			case syscall.SIGABRT:
 				log.Info("Exiting by request")
 				m.stop = true

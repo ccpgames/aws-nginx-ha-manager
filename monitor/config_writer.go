@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"html/template"
 	"io/ioutil"
-	"log"
+	"os"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 var templateTxt = `upstream {{.UpstreamName}} {
-{{$len := lendec .IPList 1}}{{range $i, $e := .IPList}}    {{$e}}{{if lt $i $len}},{{end}}
+{{$port := .Port}}{{range $i, $e := .IPList}}    server {{$e}}:{{$port}};
 {{end}}}`
 
 // ConfigWriter encapsulates writing an upstream config to a path
@@ -17,6 +19,7 @@ type ConfigWriter struct {
 	template     *template.Template
 	UpstreamName string
 	IPList       []string
+	Port         int
 }
 
 func lendec(arr []string, n int) int {
@@ -28,7 +31,7 @@ func lt(a int, b int) bool {
 }
 
 // NewConfigWriter constructs an instance of ConfigWriter
-func NewConfigWriter(path string, upstreamName string) *ConfigWriter {
+func NewConfigWriter(path string, upstreamName string, port int) *ConfigWriter {
 	funcMap := template.FuncMap{"lendec": lendec}
 
 	tpl, err := template.New("upstream").Funcs(funcMap).Parse(templateTxt)
@@ -41,6 +44,7 @@ func NewConfigWriter(path string, upstreamName string) *ConfigWriter {
 		template:     tpl,
 		UpstreamName: "aws_upstream",
 		IPList:       []string{},
+		Port:         port,
 	}
 	return &cw
 }
@@ -53,6 +57,11 @@ func (w *ConfigWriter) WriteConfig(IPList []string) error {
 	if err != nil {
 		log.Fatalf("Error rendering template: %s", err)
 	}
-	ioutil.WriteFile(w.configPath, buf.Bytes(), 600)
+	err = ioutil.WriteFile(w.configPath, buf.Bytes(), os.FileMode(0644))
+	if err != nil {
+		log.Errorf("Error writing config file: %s", err)
+		return err
+	}
+	log.Infof("Wrote new upstream config to %s", w.configPath)
 	return nil
 }

@@ -37,7 +37,7 @@ var _ = Describe("Monitor/Monitor", func() {
 		configPath = fileFH.Name()
 		fqdn = "google-public-dns-a.google.com"
 		interval = 500
-		monitor = NewMonitor(configPath, dbusConnection, interval, fqdn)
+		monitor = NewMonitor(configPath, dbusConnection, interval, fqdn, 10080, "google-dns")
 		reloadReceived = false
 	})
 
@@ -61,7 +61,7 @@ var _ = Describe("Monitor/Monitor", func() {
 		Expect(sig).To(Equal(syscall.SIGABRT))
 		Expect(monitor.IsStopped()).To(BeTrue())
 		close(done)
-	})
+	}, 2)
 
 	It("Should send a reload signal", func(done Done) {
 		ch := make(chan syscall.Signal)
@@ -73,7 +73,6 @@ var _ = Describe("Monitor/Monitor", func() {
 		Expect(<-ch).To(Equal(syscall.SIGHUP))
 		ch <- syscall.SIGABRT
 		time.Sleep(time.Millisecond * 100)
-		Expect(<-ch).To(Equal(syscall.SIGABRT))
 		close(done)
 	}, 2)
 })

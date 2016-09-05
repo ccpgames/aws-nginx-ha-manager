@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"net"
+	"strings"
 	"syscall"
 
 	log "github.com/Sirupsen/logrus"
@@ -25,6 +27,8 @@ import (
 )
 
 var fqdn string
+var upstreamName string
+var port int
 var interval int
 var configFile string
 
@@ -37,10 +41,26 @@ var monitorCmd = &cobra.Command{
 		// TODO: Work your own magic here
 		var err error
 		var dbusConn *dbus.Conn
+		fqdn = args[0]
 		if dbusConn, err = dbus.New(); err != nil {
 			log.Fatalf("Could not open dbus connection (this program requires linux with nginx runnin on systemd): %s", err)
 		}
-		monitor := monitor.NewMonitor(configFile, dbusConn, interval, fqdn)
+		if _, err = dbusConn.GetUnitProperties("nginx.service"); err != nil {
+
+			units, err := dbusConn.ListUnits()
+			unitNames := make([]string, len(units))
+			for i, _ := range units {
+				unitNames[i] = units[i].Name
+			}
+			if err != nil {
+				log.Fatalf("Error getting unitlist: %s", err)
+			}
+			log.Fatalf("Could not get properties of nginx unit; is it running?: %s (available units listed below)\n%s", err, strings.Join(unitNames, "\n"))
+		}
+		if _, err := net.LookupIP(fqdn); err != nil {
+			log.Fatalf("Could not perform initial lookup of %s: %s", fqdn, err)
+		}
+		monitor := monitor.NewMonitor(configFile, dbusConn, interval, fqdn, upstreamName, port)
 		ch := make(chan syscall.Signal)
 		monitor.Loop(ch)
 		run := true
@@ -70,8 +90,9 @@ func init() {
 	// and all subcommands, e.g.:
 	// monitorCmd.PersistentFlags().String("foo", "", "A help for foo")
 	monitorCmd.PersistentFlags().IntVar(&interval, "interval", 5, "the interval in seconds to poll the fqdn for new upstream hosts")
-	monitorCmd.PersistentFlags().StringVar(&fqdn, "fqdn", "", "Specify the fqdn to monitor")
 	monitorCmd.PersistentFlags().StringVar(&configFile, "upstream-file", "/etc/nginx/conf.d/aws_upstream.conf", "The upstream config file to write to")
+	monitorCmd.PersistentFlags().IntVar(&port, "port", 10080, "The port upstream servers are called on")
+	monitorCmd.PersistentFlags().StringVar(&upstreamName, "upstream-name", "upstream", "the name of the upstream")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

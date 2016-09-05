@@ -41,4 +41,9 @@ var _ = Describe("Monitor/Resolver", func() {
 		}
 		Expect(actual).To(ConsistOf(testList))
 	})
+
+	It("Should fail to resolve", func() {
+		_, err := resolver.Resolve("dummy.host.random")
+		Expect(err).NotTo(BeNil())
+	})
 })
