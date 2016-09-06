@@ -15,7 +15,9 @@ Note: It depends on systemd, i.e. CoreOS, Redhat et al, or newer debian based sy
 To monitor an ELB named CertVKPil-ServiceL-15ERWL9O3YIZI issue the following command:
 
 ```bash
-aws-nginx-ha-manager monitor CertVKPil-ServiceL-15ERWL9O3YIZI --upstream-file /etc/nginx/conf.d/pilot.upstream.conf --upstream-name pilot --port 8000 --interval 5
+$ aws-nginx-ha-manager monitor CertVKPil-ServiceL-15ERWL9O3YIZI --upstream-file /etc/nginx/conf.d/pilot.upstream.conf --upstream-name pilot --port 8000 --interval 5
 ```
 
 This will query the AWS API every ```5``` seconds and write an upstream file to ```/etc/nginx/conf.d/pilot.upstream.conf``` with upstream name ```pilot``` calling on port ```8000```
+
+You can also type ```aws-nginx-ha-manager --help``` for a list of options and commands.
