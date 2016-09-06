@@ -1,11 +1,14 @@
-all: provision test build
+all: clean provision test build
+
+clean:
+	@rm -rf build/
 
 provision:
-	go get -t ./...
+	@go get -t ./...
 
 test:
-	go test -v ./...
+	@go test -v ./...
 
 build:
-	mkdir -p build
-	go build -o build/aws-nginx-ha-manager
+	@mkdir -p build
+	@go build -o build/aws-nginx-ha-manager
