@@ -1,4 +1,4 @@
-# aws-nginx-ha-manager
+# aws-nginx-ha-manager (0.1.0)
 
 [![Build Status](https://travis-ci.org/ccpgames/aws-nginx-ha-manager.svg?branch=master)](https://travis-ci.org/ccpgames/aws-nginx-ha-manager)
 
