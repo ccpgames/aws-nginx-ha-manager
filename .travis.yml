@@ -1,5 +1,11 @@
 language: go
-
 go:
-  - 1.6
-  - tip
+- 1.6
+
+deploy:
+  provider: releases
+  api_key:
+    secure: nNSlaiuz5oQ6csoh6xcH/T83wW/eryRVV0pyIpJHQWPgX2bWydGtF+XN4sH9kFYeBp4kuvMcp9Sas8FGFlawjiYBi9x4YtdwTcV8CUJgLFbvDcTX//kuboYiGk2/aVdZp0JCLzL4ws362wY3+Umv7W21PgWufuQb11r9ERfg12kotcFSaax7mpclQYd1BguZHrv0IXb0CiYX1Yvjs0VjZ5qr3gpgtYXcWg1RGLTZu1wAwbJTfCvtMoV9Y0bRS2GI2D0y9UNls7Z/pjzsr0Wu3pEvCYf9uzs9WBqJkP1Mc20Dr/+zk1i6Xq1Abb8+VZbspwg/TD+oIfEuynZrjFJN4rw2So6ZdTLkgb4UqtexT/fl1BISBk8+f9VHRaij7qF0adk/wmwL6Uuv92MnwYB8db0g2BEj22M/PkCejxxHxeymD+tioFhAbfUS6g877pnMYQ2Rfh1cXQb4TjvpeQnKKupoTql3Lv/pP2wCDGK6/1MuuGV7BU6bUdgrJujhWuT8jC/iR43F4YBtDJdis0ZmDMWKfXOUOwNAH6pFJIA8fmNpg5bhn+D8IzoV3r2lZbOaraUSPnDWpPvxg18tG/GzZNe3lQI+m8s4S+L0BH97KcyIlHZ3phJze6c5qVeQytvpwazmAlpPbcMGzXJ1dCWRBXl24v0E+auVuO1LrUSN6Po=
+  file: build/aws-nginx-ha-manager
+  on:
+    repo: ccpgames/aws-nginx-ha-manager
