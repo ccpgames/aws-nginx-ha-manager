@@ -36,7 +36,7 @@ var _ = Describe("Monitor/Monitor", func() {
 		fileFH, err = ioutil.TempFile("", "config_writer_tests")
 		configPath = fileFH.Name()
 		elbName = "google-dns"
-		interval = 500
+		interval = 1
 		resolveMap := make(map[string][]string)
 		resolveMap["google-dns"] = []string{"8.8.8.8", "8.8.4.4"}
 		resolver := NewMockresolver(resolveMap)
@@ -64,7 +64,7 @@ var _ = Describe("Monitor/Monitor", func() {
 		Expect(sig).To(Equal(syscall.SIGABRT))
 		Expect(monitor.IsStopped()).To(BeTrue())
 		close(done)
-	}, 2)
+	}, 5)
 
 	It("Should send a reload signal", func(done Done) {
 		ch := make(chan syscall.Signal)
@@ -77,5 +77,5 @@ var _ = Describe("Monitor/Monitor", func() {
 		ch <- syscall.SIGABRT
 		time.Sleep(time.Millisecond * 100)
 		close(done)
-	}, 2)
+	}, 5)
 })

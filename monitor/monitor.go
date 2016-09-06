@@ -58,7 +58,7 @@ func (m *Monitor) IsStopped() bool {
 func (m *Monitor) Loop(ch chan syscall.Signal) {
 	var ipList []string
 	var sleepyTime time.Duration
-	sleepyTime = time.Duration(m.interval) * time.Millisecond
+	sleepyTime = time.Duration(m.interval) * time.Millisecond * 1000
 	for !m.stop {
 		// Lets get the ip list
 		list, err := m.balancer.GetIPList()
@@ -67,6 +67,7 @@ func (m *Monitor) Loop(ch chan syscall.Signal) {
 		}
 		// Do we have new list
 		if !testEq(ipList, list) {
+			log.Infoln("IP List updated, writing new configuration")
 			ipList = list
 			m.configWriter.WriteConfig(ipList)
 			retVal, err := m.dbusConn.ReloadOrRestartUnit("nginx.service", "fail", nil)
@@ -74,6 +75,8 @@ func (m *Monitor) Loop(ch chan syscall.Signal) {
 				log.Errorf("Error restarting or reloading the nginx unit: retval: %d: %s", retVal, err)
 			}
 			ch <- syscall.Signal(0)
+		} else {
+			log.Debugln("No changes detected")
 		}
 		// Check for signals from outside
 		select {
@@ -93,11 +96,15 @@ func (m *Monitor) Loop(ch chan syscall.Signal) {
 				ch <- syscall.SIGABRT
 			}
 		default:
+			log.Debugln("No signal")
+		}
+		if m.stop {
+			// Break immediately on signal
+			break
 		}
 		// Wait for a bit
-		if !m.stop {
-			time.Sleep(sleepyTime)
-		}
+		log.Debugf("Sleeping for %v seconds", m.interval)
+		time.Sleep(sleepyTime)
 	}
 }
 

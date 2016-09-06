@@ -62,6 +62,8 @@ var monitorCmd = &cobra.Command{
 		resolver := monitor.NewAWSResolver()
 		mon := monitor.NewMonitor(configFile, dbusConn, interval, elbName, port, upstreamName, resolver)
 		ch := make(chan syscall.Signal)
+
+		// TODO: simplify signalling, just send os.Interrupt and os.Term direct to Loop
 		mon.Loop(ch)
 		run := true
 		for run {
