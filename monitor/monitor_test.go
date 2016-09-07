@@ -53,28 +53,28 @@ var _ = Describe("Monitor/Monitor", func() {
 	})
 
 	It("Should exit gracefully", func(done Done) {
-		ch := make(chan syscall.Signal)
-		go monitor.Loop(ch)
+		sig := make(chan os.Signal, 1)
+		msgOut := make(chan string, 1)
+		go monitor.Loop(sig, msgOut)
 		time.Sleep(time.Millisecond * 100)
-		sig := <-ch
-		Expect(sig).To(Equal(syscall.Signal(0)))
-		ch <- syscall.SIGABRT
+		Expect(<-msgOut).To(Equal("Updated and reloaded configuration"))
+		sig <- os.Interrupt
 		time.Sleep(time.Millisecond * 100)
-		sig = <-ch
-		Expect(sig).To(Equal(syscall.SIGABRT))
+		Expect(<-msgOut).To(Equal("Exit"))
 		Expect(monitor.IsStopped()).To(BeTrue())
 		close(done)
 	}, 5)
 
 	It("Should send a reload signal", func(done Done) {
-		ch := make(chan syscall.Signal)
-		go monitor.Loop(ch)
+		sig := make(chan os.Signal, 1)
+		msgOut := make(chan string, 1)
+		go monitor.Loop(sig, msgOut)
 		time.Sleep(time.Millisecond * 100)
-		Expect(<-ch).To(Equal(syscall.Signal(0)))
-		ch <- syscall.SIGHUP
+		Expect(<-msgOut).To(Equal("Updated and reloaded configuration"))
+		sig <- syscall.SIGHUP
 		time.Sleep(time.Millisecond * 1000)
-		Expect(<-ch).To(Equal(syscall.SIGHUP))
-		ch <- syscall.SIGABRT
+		Expect(<-msgOut).To(Equal("Reloaded configuration"))
+		sig <- os.Interrupt
 		time.Sleep(time.Millisecond * 100)
 		close(done)
 	}, 5)

@@ -15,8 +15,11 @@
 package cmd
 
 import (
+	"os/signal"
 	"strings"
 	"syscall"
+
+	"os"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -61,21 +64,21 @@ var monitorCmd = &cobra.Command{
 		}
 		resolver := monitor.NewAWSResolver()
 		mon := monitor.NewMonitor(configFile, dbusConn, interval, elbName, port, upstreamName, resolver)
-		ch := make(chan syscall.Signal)
+		sig := make(chan os.Signal, 1)
+		msgOut := make(chan string, 1)
 
 		// TODO: simplify signalling, just send os.Interrupt and os.Term direct to Loop
-		mon.Loop(ch)
 		run := true
+		signal.Notify(sig, os.Interrupt, syscall.SIGHUP)
+		go mon.Loop(sig, msgOut)
 		for run {
-			select {
-			case sig := <-ch:
-				switch sig {
-				case syscall.SIGHUP:
-					log.Info("Reloaded on signal")
-				case syscall.SIGABRT:
-					log.Info("Exiting on signal")
-					run = false
-				}
+			msg := <-msgOut
+			switch msg {
+			case "Exit":
+				log.Infoln("Exiting")
+				run = false
+			default:
+				log.Infof("Message from runtime: %s", msg)
 			}
 		}
 	},

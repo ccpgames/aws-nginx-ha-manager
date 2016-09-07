@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"os"
 	"syscall"
 	"time"
 
@@ -55,7 +56,7 @@ func (m *Monitor) IsStopped() bool {
 }
 
 // Loop runs the monitor and resolves the service at a given interval
-func (m *Monitor) Loop(ch chan syscall.Signal) {
+func (m *Monitor) Loop(sig chan os.Signal, msg chan string) {
 	var ipList []string
 	var sleepyTime time.Duration
 	sleepyTime = time.Duration(m.interval) * time.Millisecond * 1000
@@ -74,13 +75,13 @@ func (m *Monitor) Loop(ch chan syscall.Signal) {
 			if err != nil {
 				log.Errorf("Error restarting or reloading the nginx unit: retval: %d: %s", retVal, err)
 			}
-			ch <- syscall.Signal(0)
+			msg <- "Updated and reloaded configuration"
 		} else {
 			log.Debugln("No changes detected")
 		}
 		// Check for signals from outside
 		select {
-		case s := <-ch:
+		case s := <-sig:
 			switch s {
 			case syscall.SIGHUP:
 				retVal, err := m.dbusConn.ReloadOrRestartUnit("nginx.service", "fail", nil)
@@ -88,12 +89,12 @@ func (m *Monitor) Loop(ch chan syscall.Signal) {
 					log.Errorf("Error restarting or reloading the nginx unit: retval: %d: %s", retVal, err)
 				}
 				log.Info("Reloaded nginx by signal")
-				ch <- syscall.SIGHUP
+				msg <- "Reloaded configuration"
 				break
-			case syscall.SIGABRT:
+			case os.Interrupt:
 				log.Info("Exiting by request")
 				m.stop = true
-				ch <- syscall.SIGABRT
+				msg <- "Exit"
 			}
 		default:
 			log.Debugln("No signal")
